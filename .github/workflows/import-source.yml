@@ -34,15 +34,15 @@ jobs:
           cp -a .bootstrap "$save/"
           cp .github/workflows/import-source.yml "$save/import-source.yml"
           cp .github/workflows/build.yml "$save/build.yml"
-          base64 --decode .bootstrap/integration.patch.gz.b64 | gzip --decompress > "$save/.bootstrap/integration.patch"
-          (cd "$save/.bootstrap" && sha256sum --check integration.patch.sha256)
+          base64 --decode .bootstrap/integration.patch.gz.b64 | gzip --decompress > "$save/integration.patch"
+          (cd "$save" && sha256sum --check .bootstrap/integration.patch.sha256)
           git remote add upstream-import https://github.com/AyuGram/AyuGramDesktop.git
           git fetch --no-tags --depth=1 upstream-import 0f2a31bb420de98f331990432265b131b8d836b5
           # Keep the repository's existing HEAD as parent but import the genuine
           # upstream tree/index, including all 36 submodule gitlinks.
           git read-tree --reset -u FETCH_HEAD
-          git apply --check "$save/.bootstrap/integration.patch"
-          git apply --index "$save/.bootstrap/integration.patch"
+          git apply --check "$save/integration.patch"
+          git apply --index "$save/integration.patch"
           mkdir -p .github/workflows
           cp -a "$save/.bootstrap" .bootstrap
           cp "$save/import-source.yml" .github/workflows/import-source.yml
