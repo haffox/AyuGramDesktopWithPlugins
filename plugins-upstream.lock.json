@@ -1,0 +1,200 @@
+{
+  "repository": "https://github.com/AyuGram/AyuGramDesktop.git",
+  "revision": "0f2a31bb420de98f331990432265b131b8d836b5",
+  "submodules": [
+    {
+      "path": "Telegram/ThirdParty/GSL",
+      "revision": "87f9d768866548b5b86e72be66c60c5abd4d9b37"
+    },
+    {
+      "path": "Telegram/ThirdParty/MicroTeX",
+      "revision": "61aaa7cc354de91d5898ffb0b2a6c62628d9a76f"
+    },
+    {
+      "path": "Telegram/ThirdParty/QR",
+      "revision": "720f62bddb7226106071d4728c292cb1df519ceb"
+    },
+    {
+      "path": "Telegram/ThirdParty/TooManyCooks",
+      "revision": "b86af81982860c96295a7e95e4c60cb335615cef"
+    },
+    {
+      "path": "Telegram/ThirdParty/cld3",
+      "revision": "b48dc46512566f5a2d41118c8c1116c4f96dc661"
+    },
+    {
+      "path": "Telegram/ThirdParty/cmark-gfm",
+      "revision": "d7d4a24a9ebfa7581994ea6df0297662bfeaf413"
+    },
+    {
+      "path": "Telegram/ThirdParty/expected",
+      "revision": "292eff8bd8ee230a7df1d6a1c00c4ea0eb2f0362"
+    },
+    {
+      "path": "Telegram/ThirdParty/fcitx5-qt",
+      "revision": "c743b12e6780edf1dcfe9071531c80f050cacb95"
+    },
+    {
+      "path": "Telegram/ThirdParty/hime",
+      "revision": "9b3e6f9ab59d1fe4d9de73d3bf0fed7789f921c5"
+    },
+    {
+      "path": "Telegram/ThirdParty/hunspell",
+      "revision": "a698d8b53cab3507d1d619d5fa08a88777abe50b"
+    },
+    {
+      "path": "Telegram/ThirdParty/kcoreaddons",
+      "revision": "fd84da51b554eac25e35b1e3f373edaab3029b15"
+    },
+    {
+      "path": "Telegram/ThirdParty/kimageformats",
+      "revision": "df82311a1081e576c4ac020204578bb8a81b21ec"
+    },
+    {
+      "path": "Telegram/ThirdParty/libcbor",
+      "revision": "170bee2b82cdb7b2ed25af301f62cb6efdd40ec1"
+    },
+    {
+      "path": "Telegram/ThirdParty/libfido2",
+      "revision": "b974e7cf2ee7392134cc12c08b76a068cf250dd8"
+    },
+    {
+      "path": "Telegram/ThirdParty/libprisma",
+      "revision": "23b0d70f9709da9b38561d5706891a134d18df76"
+    },
+    {
+      "path": "Telegram/ThirdParty/lz4",
+      "revision": "5ff839680134437dbf4678f3d0c7b371d84f4964"
+    },
+    {
+      "path": "Telegram/ThirdParty/nimf",
+      "revision": "498ec7ffab3ac140c2469638a14451788f03e798"
+    },
+    {
+      "path": "Telegram/ThirdParty/range-v3",
+      "revision": "a81477931a8aa2ad025c6bda0609f38e09e4d7ec"
+    },
+    {
+      "path": "Telegram/ThirdParty/tgcalls",
+      "revision": "2faee3b5524f54d56c91c2058c00e11c656a74b3"
+    },
+    {
+      "path": "Telegram/ThirdParty/xdg-desktop-portal",
+      "revision": "23a76c392170dbbd26230f85ef56c3a57e52b857"
+    },
+    {
+      "path": "Telegram/ThirdParty/xxHash",
+      "revision": "bbb27a5efb85b92a0486cf361a8635715a53f6ba"
+    },
+    {
+      "path": "Telegram/codegen",
+      "revision": "be951ec045da4f3a6dc271a758ce50c2c45a6d8a"
+    },
+    {
+      "path": "Telegram/lib_base",
+      "revision": "de35c7abcbf6464a0845695a55568bdac12a5fba"
+    },
+    {
+      "path": "Telegram/lib_crl",
+      "revision": "7a165302fed408c84b2d1c2513e35a21a141da44"
+    },
+    {
+      "path": "Telegram/lib_icu",
+      "revision": "7e55ddbcda78145b1fdb55c1f07f39299fa263f6"
+    },
+    {
+      "path": "Telegram/lib_lottie",
+      "revision": "7d00b5048aff8dd93c0a9721abf50006d20682be"
+    },
+    {
+      "path": "Telegram/lib_qr",
+      "revision": "6fdf60461444ba150e13ac36009c0ffce72c4c83"
+    },
+    {
+      "path": "Telegram/lib_rpl",
+      "revision": "c57cccffb01d85570decd7fccb88419c9a682e63"
+    },
+    {
+      "path": "Telegram/lib_spellcheck",
+      "revision": "3273fd25c185fb626a9836dafbd644c2bd129ee1"
+    },
+    {
+      "path": "Telegram/lib_storage",
+      "revision": "ccdc72548a5065b5991b4e06e610d76bc4f6023e"
+    },
+    {
+      "path": "Telegram/lib_tl",
+      "revision": "eb38efe1447ae02883f9619ec899b4fe21309b95"
+    },
+    {
+      "path": "Telegram/lib_translate",
+      "revision": "09c10726220e6862ca91d39b5dec5119aa0177bc"
+    },
+    {
+      "path": "Telegram/lib_ui",
+      "revision": "e3d058223aea0b68938a07a7d436d67aaf2b1b30"
+    },
+    {
+      "path": "Telegram/lib_webrtc",
+      "revision": "52636e86eaa493de670daf71959d000b281bd153"
+    },
+    {
+      "path": "Telegram/lib_webview",
+      "revision": "596fb2432b7c479e9499f8ede64fe6775e65ae91"
+    },
+    {
+      "path": "cmake",
+      "revision": "5e21e7ac353138128145ec4419c0666dc9959347"
+    }
+  ],
+  "input_archive_sha256": "ca918db2a3739ecbbb593de5922437e71d74fff18a71cc2b0962f22f19a15ba5",
+  "cpython": {
+    "version": "3.12.10",
+    "architecture": "amd64",
+    "embeddable_sha256": "4acbed6dd1c744b0376e3b1cf57ce906f9dc9e95e68824584c8099a63025a3c3"
+  },
+  "executable_files": [
+    "Telegram/Resources/icons/ayu/burnt.png",
+    "Telegram/Resources/icons/ayu/burnt@2x.png",
+    "Telegram/Resources/icons/ayu/burnt@3x.png",
+    "Telegram/Resources/icons/ayu/contacts_mutual.png",
+    "Telegram/Resources/icons/ayu/contacts_mutual@2x.png",
+    "Telegram/Resources/icons/ayu/contacts_mutual@3x.png",
+    "Telegram/Resources/icons/ayu/ghost.png",
+    "Telegram/Resources/icons/ayu/ghost@2x.png",
+    "Telegram/Resources/icons/ayu/ghost@3x.png",
+    "Telegram/Resources/icons/ayu/ghost_mode_global.png",
+    "Telegram/Resources/icons/ayu/ghost_mode_global@2x.png",
+    "Telegram/Resources/icons/ayu/ghost_mode_global@3x.png",
+    "Telegram/Resources/icons/ayu/ghost_tray.png",
+    "Telegram/Resources/icons/ayu/ghost_tray@2x.png",
+    "Telegram/Resources/icons/ayu/ghost_tray@3x.png",
+    "Telegram/Resources/icons/ayu/history_file_plugin.png",
+    "Telegram/Resources/icons/ayu/history_file_plugin@2x.png",
+    "Telegram/Resources/icons/ayu/history_file_plugin@3x.png",
+    "Telegram/Resources/icons/ayu/repeat.png",
+    "Telegram/Resources/icons/ayu/repeat@2x.png",
+    "Telegram/Resources/icons/ayu/repeat@3x.png",
+    "Telegram/Resources/icons/mac_tray_icon.png",
+    "Telegram/Resources/icons/mac_tray_icon@2x.png",
+    "Telegram/Resources/icons/mac_tray_icon@3x.png",
+    "Telegram/Resources/langs/refresh.sh",
+    "Telegram/build/build.sh",
+    "Telegram/build/canary_publish.sh",
+    "Telegram/build/canary_test_fixtures.sh",
+    "Telegram/build/changelog2appstream.py",
+    "Telegram/build/deploy.sh",
+    "Telegram/build/docker/build.sh",
+    "Telegram/build/docker/centos_env/build.sh",
+    "Telegram/build/docker/centos_env/build_debug.sh",
+    "Telegram/build/docker/centos_env/gen_dockerfile.py",
+    "Telegram/build/docker/centos_env/run.sh",
+    "Telegram/build/mac_store_upload.sh",
+    "Telegram/build/minidebug.sh",
+    "Telegram/build/prepare/linux.sh",
+    "Telegram/build/prepare/mac.sh",
+    "Telegram/build/release.sh",
+    "Telegram/build/set_version.sh",
+    "Telegram/configure.sh"
+  ]
+}
