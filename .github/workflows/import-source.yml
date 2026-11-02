@@ -62,7 +62,8 @@ jobs:
           assert actual == {m['path']: m['revision'] for m in lock['submodules']}
           print('Verified all', len(actual), 'pinned submodules')
           PY
-          git diff --cached --check
+          # Check only our integration changes; upstream already contains legacy whitespace.
+          git diff --cached --check FETCH_HEAD
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git commit -m 'Integrate full AyuGram Desktop source with CPython plugins'
