@@ -1,4 +1,4 @@
-name: AyuGram Windows installer
+name: Veyra Windows installer
 on:
   push:
   workflow_dispatch:
@@ -75,7 +75,7 @@ jobs:
       - name: Upload installer and portable client
         uses: actions/upload-artifact@v4
         with:
-          name: AyuGram-Plugins-windows-x64
+          name: Veyra-windows-x64
           path: artifacts/*
           if-no-files-found: error
           retention-days: 14
@@ -87,7 +87,7 @@ jobs:
           $notes = "Unsigned Windows x64 installer and portable client. Source: $env:GITHUB_SHA. CPython plugins execute trusted code in-process; no sandbox. Real-account functional testing is not automated."
           $assets = @(Get-ChildItem ./artifacts -File | Where-Object { $_.Extension -in @('.exe', '.zip') -or $_.Name -eq 'SHA256SUMS.txt' } | ForEach-Object { $_.FullName })
           if ($assets.Count -lt 3) { throw 'Installer, portable ZIP and checksums must all exist' }
-          gh release create $tag --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "AyuGram Plugins Windows build $env:GITHUB_RUN_NUMBER" --notes $notes --prerelease @assets
+          gh release create $tag --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "Veyra Desktop Windows build $env:GITHUB_RUN_NUMBER" --notes $notes --prerelease @assets
           if ($LASTEXITCODE -ne 0) { throw 'Installer release publication failed' }
       - name: Expose native build failure details
         if: failure()
@@ -103,7 +103,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: AyuGram-build-diagnostics
+          name: Veyra-build-diagnostics
           path: |
             tdesktop/out/CMakeFiles/CMakeConfigureLog.yaml
             build-logs/
