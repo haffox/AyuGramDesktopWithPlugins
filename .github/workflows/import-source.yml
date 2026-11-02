@@ -1,0 +1,76 @@
+name: Import full AyuGram source
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.bootstrap/integration.patch.gz.b64'
+      - '.github/workflows/import-source.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: write
+concurrency:
+  group: ayugram-source-import
+  cancel-in-progress: false
+jobs:
+  import:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Import pinned source and apply native integration
+        id: source
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -f Telegram/SourceFiles/plugins/desktop_integration.cpp ]; then
+            echo 'Full source already imported; refusing to overwrite existing work.'
+            exit 0
+          fi
+          save="$RUNNER_TEMP/ayu-bootstrap"
+          mkdir -p "$save"
+          cp -a .bootstrap "$save/"
+          cp .github/workflows/import-source.yml "$save/import-source.yml"
+          cp .github/workflows/build.yml "$save/build.yml"
+          base64 --decode .bootstrap/integration.patch.gz.b64 | gzip --decompress > "$save/.bootstrap/integration.patch"
+          (cd "$save/.bootstrap" && sha256sum --check integration.patch.sha256)
+          git remote add upstream-import https://github.com/AyuGram/AyuGramDesktop.git
+          git fetch --no-tags --depth=1 upstream-import 0f2a31bb420de98f331990432265b131b8d836b5
+          # Keep the repository's existing HEAD as parent but import the genuine
+          # upstream tree/index, including all 36 submodule gitlinks.
+          git read-tree --reset -u FETCH_HEAD
+          git apply --check "$save/.bootstrap/integration.patch"
+          git apply --index "$save/.bootstrap/integration.patch"
+          mkdir -p .github/workflows
+          cp -a "$save/.bootstrap" .bootstrap
+          cp "$save/import-source.yml" .github/workflows/import-source.yml
+          cmp "$save/build.yml" .github/workflows/build.yml
+          git add --all
+          # GITHUB_TOKEN does not need workflow-edit permissions: the workflow
+          # files were already installed by the authenticated GitHub connection.
+          git diff --cached --quiet -- .github/workflows
+          python3 - <<'PY'
+          import json, subprocess
+          lock = json.load(open('plugins-upstream.lock.json'))
+          actual = {}
+          for entry in subprocess.check_output(['git', 'ls-files', '--stage'], text=True).splitlines():
+              meta, path = entry.split('\t', 1)
+              if meta.startswith('160000 '):
+                  actual[path] = meta.split()[1]
+          assert actual == {m['path']: m['revision'] for m in lock['submodules']}
+          print('Verified all', len(actual), 'pinned submodules')
+          PY
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Integrate full AyuGram Desktop source with CPython plugins'
+          git push origin HEAD:main
+          echo 'imported=true' >> "$GITHUB_OUTPUT"
+      - name: Start the real Windows installer build
+        if: steps.source.outputs.imported == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --method POST "repos/$GITHUB_REPOSITORY/actions/workflows/build.yml/dispatches" -f ref=main

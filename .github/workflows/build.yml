@@ -1,0 +1,90 @@
+name: AyuGram Windows installer
+on:
+  push:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ayugram-windows-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  windows:
+    if: github.event_name == 'workflow_dispatch' || !contains(github.event.head_commit.message, '[bootstrap]')
+    # A cold upstream dependency build is large. Set this repository variable to a
+    # dedicated runner label when the hosted runner's disk/time limits are insufficient.
+    runs-on: ${{ vars.WINDOWS_BUILD_RUNNER || 'windows-2025' }}
+    timeout-minutes: 360
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      # Same example credentials as upstream docs/building-win.md. For distribution,
+      # replace both with your own Telegram application credentials in repository vars.
+      TDESKTOP_API_ID: ${{ vars.TDESKTOP_API_ID || '2040' }}
+      TDESKTOP_API_HASH: ${{ vars.TDESKTOP_API_HASH || 'b18441a1ff607e10a989891a5462e627' }}
+      CMAKE_BUILD_PARALLEL_LEVEL: '4'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: tdesktop
+          submodules: recursive
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.10'
+          architecture: x64
+      - name: Keep CPython SDK separate from upstream build-tools Python
+        run: |
+          $sdk = Split-Path (Get-Command python).Source
+          "AYU_PYTHON_SDK=$sdk" >> $env:GITHUB_ENV
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          architecture: x64
+      - name: Install build tooling
+        run: |
+          python -m pip install cmake==3.31.6 ninja==1.11.1.4
+          if ($LASTEXITCODE -ne 0) { throw 'Build-tool installation failed' }
+      - name: Restore prepared upstream dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            Libraries
+            ThirdParty
+          # prepare.py also has per-library invalidation keys; never cache source/out.
+          key: ayu-win64-v143-qt6-${{ runner.os }}-${{ hashFiles('tdesktop/Telegram/build/prepare/**', 'tdesktop/Telegram/build/qt_version.py', 'tdesktop/.gitmodules') }}
+      - name: Prepare dependencies, compile integrated client and package installer
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vs = & $vswhere -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (!$vs) { throw 'MSVC x64 tools not found' }
+          $vcvars = Join-Path $vs 'VC\Auxiliary\Build\vcvars64.bat'
+          $script = Join-Path $env:GITHUB_WORKSPACE 'tdesktop\scripts\windows\build.ps1'
+          $batch = Join-Path $env:RUNNER_TEMP 'ayu-build.cmd'
+          @"
+          @echo off
+          call "$vcvars" -vcvars_ver=14.44
+          if errorlevel 1 exit /b 1
+          powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$script"
+          exit /b %errorlevel%
+          "@ | Set-Content $batch -Encoding ascii
+          & cmd.exe /d /c $batch
+          if ($LASTEXITCODE -ne 0) { throw "Windows build failed ($LASTEXITCODE)" }
+      - name: Upload installer and portable client
+        uses: actions/upload-artifact@v4
+        with:
+          name: AyuGram-Plugins-windows-x64
+          path: artifacts/*
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload build diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: AyuGram-build-diagnostics
+          path: |
+            tdesktop/out/CMakeFiles/CMakeConfigureLog.yaml
+            build-logs/
+          if-no-files-found: ignore
+          retention-days: 7
