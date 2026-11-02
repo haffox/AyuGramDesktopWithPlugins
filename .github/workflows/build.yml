@@ -73,7 +73,6 @@ jobs:
           }
           if (!$vs) { throw 'VS 2022 with MSVC 14.44 and matching ATL/MFC headers was not found; refusing a long dependency build.' }
           "VEYRA_VS_INSTALL=$vs" >> $env:GITHUB_ENV
-          "CMAKE_GENERATOR_INSTANCE=$vs" >> $env:GITHUB_ENV
           "GYP_MSVS_OVERRIDE_PATH=$vs" >> $env:GITHUB_ENV
           'GYP_MSVS_VERSION=2022' >> $env:GITHUB_ENV
           Write-Host "Selected VS 2022: $vs"

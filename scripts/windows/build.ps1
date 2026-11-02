@@ -41,6 +41,8 @@ if (!(Test-Path $inno)) {
 if (!(Test-Path $inno)) { throw 'Inno Setup 6 ISCC.exe not found' }
 Push-Location $root
 try {
+    # Dependencies use Ninja: a VS-only instance selector must not leak into them.
+    Remove-Item Env:CMAKE_GENERATOR_INSTANCE -ErrorAction SilentlyContinue
     Run-Step 'prepare' { & (Join-Path $repo 'Telegram/build/prepare/win.bat') qt6 silent }
     # Configure with an explicit generator; upstream's wrapper does not accept an
     # additional positional x64 alongside -G. All source hooks are in this checkout.
@@ -48,6 +50,7 @@ try {
     try {
         Run-Step 'configure' {
             & ./configure.bat qt6 '-GVisual Studio 17 2022' '-Ax64' '-Tv143,version=14.44' `
+                "-DCMAKE_GENERATOR_INSTANCE=$env:VSINSTALLDIR" `
                 "-DTDESKTOP_API_ID=$env:TDESKTOP_API_ID" "-DTDESKTOP_API_HASH=$env:TDESKTOP_API_HASH" `
                 "-DPython3_ROOT_DIR=$sdk" "-DPython3_EXECUTABLE=$sdk/python.exe" `
                 "-DAYU_PYTHON_RUNTIME_DIR=$runtime" '-DCMAKE_CXX_FLAGS=/FS' `
