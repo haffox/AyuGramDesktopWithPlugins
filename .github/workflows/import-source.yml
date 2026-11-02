@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - '.bootstrap/integration.patch.gz.b64'
+      - '.bootstrap/windows-native-fixes.patch'
       - '.github/workflows/import-source.yml'
   workflow_dispatch:
 permissions:
@@ -69,8 +70,27 @@ jobs:
           git commit -m 'Integrate full AyuGram Desktop source with CPython plugins'
           git push origin HEAD:main
           echo 'imported=true' >> "$GITHUB_OUTPUT"
+      - name: Apply maintained Windows dependency fixes
+        id: fixes
+        shell: bash
+        run: |
+          set -euo pipefail
+          patch=.bootstrap/windows-native-fixes.patch
+          if [ ! -f "$patch" ]; then exit 0; fi
+          if git apply --reverse --check "$patch" 2>/dev/null; then
+            echo 'Windows dependency fixes are already applied.'
+            exit 0
+          fi
+          git apply --check "$patch"
+          git apply --index "$patch"
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'Fix current MSYS2 diffutils package and pin verified NASM 3.01'
+          git push origin HEAD:main
+          echo 'changed=true' >> "$GITHUB_OUTPUT"
       - name: Start the real Windows installer build
-        if: steps.source.outputs.imported == 'true'
+        if: steps.source.outputs.imported == 'true' || steps.fixes.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

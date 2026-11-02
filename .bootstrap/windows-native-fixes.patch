@@ -1,0 +1,20 @@
+--- a/Telegram/build/prepare/prepare.py
++++ b/Telegram/build/prepare/prepare.py
+@@ -478,11 +478,15 @@
+     bash -c "pacman-key --init; pacman-key --populate; pacman -Syu --noconfirm"
+     pacman -Syu --noconfirm ^
+         make ^
+-        mingw-w64-x86_64-diffutils ^
++        diffutils ^
+         mingw-w64-x86_64-gperf ^
+-        mingw-w64-x86_64-nasm ^
+         mingw-w64-x86_64-perl ^
+         mingw-w64-x86_64-pkgconf
++
++    powershell -Command "iwr -OutFile ./nasm-3.01.pkg.tar.zst https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-nasm-3.01-1-any.pkg.tar.zst"
++    bash -c "echo '3561c1f8a28be5118dc6d4ee1dc3a348368325ade07a8c77a332354109aaee27  nasm-3.01.pkg.tar.zst' | sha256sum -c -"
++    pacman -U --noconfirm nasm-3.01.pkg.tar.zst
++    del nasm-3.01.pkg.tar.zst
+ """, 'ThirdParty')
+ 
+ stage('python', """
