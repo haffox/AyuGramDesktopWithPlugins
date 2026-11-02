@@ -206,6 +206,15 @@ void AyuLanguage::applyLanguageJson(QJsonDocument doc) {
 			val = val.replace(qsl("%1$s"), qsl("{item1}")).replace(qsl("%2$s"), qsl("{item2}"));
 		}
 
+		// Keep Veyra-specific notices from being replaced by upstream language packs.
+		if (key == qsl("ayu_SettingsWatermark")
+			|| key == qsl("ayu_ExteraChatsAlert")
+			|| key == qsl("ayu_PluginsNotAvailable")) {
+			continue;
+		}
+		if (key != qsl("ayu_SupporterPopup") && key != qsl("ayu_OfficialResourcePopup")) {
+			val.replace(qsl("AyuGram"), qsl("Veyra"));
+		}
 		Lang::GetInstance().resetValue(key.toUtf8());
 		Lang::GetInstance().applyValue(key.toUtf8(), val.toUtf8());
 	}

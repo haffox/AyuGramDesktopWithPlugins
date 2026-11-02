@@ -41,12 +41,12 @@ Every push, on any branch, starts `.github/workflows/build.yml`:
 5. Configure and build the **modified** `Telegram` target, Release x64.
 6. Bundle the hash-verified CPython embeddable distribution, DLLs and compatibility SDK.
 7. Build an **unsigned** Inno Setup installer and a portable ZIP; upload both
-   plus SHA256SUMS to `AyuGram-Plugins-windows-x64` in Actions artifacts.
+   plus SHA256SUMS to `Veyra-windows-x64` in Actions artifacts.
 
 Expected outputs:
 
-- `AyuGram-Plugins-7.2.9-windows-x64-setup.exe`
-- `AyuGram-Plugins-windows-x64-portable.zip`
+- `Veyra-7.2.9-windows-x64-setup.exe`
+- `Veyra-windows-x64-portable.zip`
 - `SHA256SUMS.txt`
 
 The installer has a distinct application ID and does not delete existing profiles.

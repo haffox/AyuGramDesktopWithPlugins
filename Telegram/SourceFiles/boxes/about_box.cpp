@@ -48,15 +48,15 @@ rpl::producer<TextWithEntities> Text() {
 			"https://github.com/AyuGram/AyuGramDesktop/blob/dev/LICENSE")),
 		lt_github_link,
 		rpl::single(Ui::Text::Link(
-			"GitHub",
-			"https://github.com/AyuGram/AyuGramDesktop")),
+			"Veyra source",
+			"https://github.com/haffox/AyuGramDesktopWithPlugins")),
 		tr::marked);
 }
 
 } // namespace
 
 void AboutBox(not_null<Ui::GenericBox*> box, Window::SessionController* controller) {
-	box->setTitle(rpl::single(u"AyuGram Desktop"_q));
+	box->setTitle(rpl::single(u"Veyra Desktop"_q));
 
 	auto layout = box->verticalLayout();
 
@@ -88,17 +88,14 @@ void AboutBox(not_null<Ui::GenericBox*> box, Window::SessionController* controll
 	};
 
 	addText(Text());
+	addText(rpl::single(TextWithEntities{
+		u"Veyra is an independent fork of AyuGram Desktop and Telegram Desktop. "
+		u"Original authors retain their copyright; distributed under GNU GPL v3."_q }));
 
 	box->addButton(tr::lng_close(), [=] { box->closeBox(); });
 	box->addLeftButton(
-		rpl::single(QString("@AyuGramReleases")),
-		[box, controller]
-		{
-			box->closeBox();
-			controller->showPeerByLink(Window::PeerByLinkInfo{
-				.usernameOrId = QString("ayugramreleases"),
-			});
-		});
+		rpl::single(u"AyuGram source"_q),
+		[] { File::OpenUrl(u"https://github.com/AyuGram/AyuGramDesktop"_q); });
 
 	box->setWidth(st::aboutWidth);
 }

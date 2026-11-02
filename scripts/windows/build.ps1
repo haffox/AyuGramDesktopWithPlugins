@@ -57,10 +57,10 @@ try {
     $out = Join-Path $repo 'out'
     Run-Step 'compile' { cmake --build $out --config Release --target Telegram --parallel 4 }
     $release = Join-Path $out 'Release'
-    $stage = Join-Path $root 'package/AyuGram-Plugins'
+    $stage = Join-Path $root 'package/Veyra'
     if (Test-Path $stage) { Remove-Item -Recurse -Force $stage }
     New-Item -ItemType Directory -Force $stage | Out-Null
-    foreach ($name in @('AyuGram.exe','python312.dll','vcruntime140.dll','vcruntime140_1.dll','python','plugin-sdk','plugin-examples')) {
+    foreach ($name in @('Veyra.exe','python312.dll','vcruntime140.dll','vcruntime140_1.dll','python','plugin-sdk','plugin-examples')) {
         $source = Join-Path $release $name
         if (!(Test-Path $source)) { throw "Required package payload missing: $source" }
         Copy-Item $source $stage -Recurse -Force
@@ -69,8 +69,9 @@ try {
         $source = Join-Path $release $name
         if (Test-Path $source) { Copy-Item $source $stage -Recurse -Force }
     }
-    Copy-Item (Join-Path $repo 'LICENSE') (Join-Path $stage 'LICENSE-AyuGram.txt')
-    Copy-Item (Join-Path $repo 'LEGAL') (Join-Path $stage 'LEGAL-AyuGram.txt')
+    Copy-Item (Join-Path $repo 'LICENSE') (Join-Path $stage 'LICENSE.txt')
+    Copy-Item (Join-Path $repo 'LEGAL') (Join-Path $stage 'LEGAL.txt')
+    Copy-Item (Join-Path $repo 'NOTICE-VEYRA.md') (Join-Path $stage 'NOTICE-VEYRA.md')
     Copy-Item (Join-Path $repo 'docs/PLUGINS.md') (Join-Path $stage 'PLUGINS.md')
     $artifacts = Join-Path $root 'artifacts'
     if (Test-Path $artifacts) { Remove-Item -Recurse -Force $artifacts }
@@ -81,7 +82,7 @@ try {
         & $inno "/DAppVersion=$version" "/DPayload=$stage" "/DArtifacts=$artifacts" `
             (Join-Path $repo 'scripts/windows/installer.iss')
     }
-    Compress-Archive -Path "$stage/*" -DestinationPath (Join-Path $artifacts 'AyuGram-Plugins-windows-x64-portable.zip') -Force
+    Compress-Archive -Path "$stage/*" -DestinationPath (Join-Path $artifacts 'Veyra-windows-x64-portable.zip') -Force
     Get-ChildItem $artifacts -File | ForEach-Object {
         $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
         "$hash  $($_.Name)"
