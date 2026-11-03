@@ -44,20 +44,41 @@ try {
     # Dependencies use Ninja: a VS-only instance selector must not leak into them.
     Remove-Item Env:CMAKE_GENERATOR_INSTANCE -ErrorAction SilentlyContinue
     Run-Step 'prepare' { & (Join-Path $repo 'Telegram/build/prepare/win.bat') qt6 silent }
-    # Configure with an explicit generator; upstream's wrapper does not accept an
-    # additional positional x64 alongside -G. All source hooks are in this checkout.
-    Push-Location (Join-Path $repo 'Telegram')
-    try {
-        Run-Step 'configure' {
-            & ./configure.bat qt6 '-GVisual Studio 17 2022' '-Ax64' '-Tv143,version=14.44' `
-                "-DCMAKE_GENERATOR_INSTANCE=$env:VSINSTALLDIR" `
-                "-DTDESKTOP_API_ID=$env:TDESKTOP_API_ID" "-DTDESKTOP_API_HASH=$env:TDESKTOP_API_HASH" `
-                "-DPython3_ROOT_DIR=$sdk" "-DPython3_EXECUTABLE=$sdk/python.exe" `
-                "-DAYU_PYTHON_RUNTIME_DIR=$runtime" '-DCMAKE_CXX_FLAGS=/FS' `
-                '-DCMAKE_SYSTEM_VERSION=10.0.26100.0' '-DDESKTOP_APP_DISABLE_AUTOUPDATE=ON'
-        }
-    } finally { Pop-Location }
+    # Run CMake directly. The upstream Python wrapper concatenates a shell command;
+    # a VSINSTALLDIR ending in backslash can consume subsequent quoted arguments.
+    # Always supply separate, explicit source/build paths and an argument array.
     $out = Join-Path $repo 'out'
+    $sourceCmake = Join-Path $repo 'CMakeLists.txt'
+    if (!(Test-Path $sourceCmake)) { throw "Source CMakeLists.txt missing: $sourceCmake" }
+    $qtVersions = @(Select-String -Path (Join-Path $repo 'Telegram/build/qt_version.py') `
+        -Pattern "os.environ\['QT'\]\s*=\s*'(6\.[^']+)'" | ForEach-Object {
+            $_.Matches[0].Groups[1].Value
+        } | Sort-Object -Unique)
+    if ($qtVersions.Count -ne 1) { throw 'Cannot resolve a unique Qt 6 version from the pinned upstream source' }
+    $env:QT = $qtVersions[0]
+    $qtConfig = Join-Path $root "Libraries/win64/Qt-$env:QT/lib/cmake/Qt6/Qt6Config.cmake"
+    if (!(Test-Path $qtConfig)) { throw "Prepared Qt 6 configuration missing: $qtConfig" }
+    $vs = $env:VSINSTALLDIR
+    if (!$vs) { throw 'VSINSTALLDIR is missing; initialize vcvars64.bat first' }
+    $vs = $vs.TrimEnd([char[]]"\/")
+    $configureArgs = @(
+        '-S', $repo, '-B', $out,
+        '-G', 'Visual Studio 17 2022', '-A', 'x64', '-T', 'v143,version=14.44',
+        "-DCMAKE_GENERATOR_INSTANCE=$vs",
+        "-DTDESKTOP_API_ID=$env:TDESKTOP_API_ID",
+        "-DTDESKTOP_API_HASH=$env:TDESKTOP_API_HASH",
+        "-DPython3_ROOT_DIR=$sdk",
+        "-DPython3_EXECUTABLE=$sdk/python.exe",
+        "-DAYU_PYTHON_RUNTIME_DIR=$runtime",
+        '-DCMAKE_CXX_FLAGS=/FS',
+        '-DCMAKE_SYSTEM_VERSION=10.0.26100.0',
+        '-DDESKTOP_APP_DISABLE_AUTOUPDATE=ON'
+    )
+    Write-Host "CMake source: $repo; build: $out; Qt: $env:QT; VS: $vs"
+    Run-Step 'configure' { & cmake @configureArgs }
+    if (!(Test-Path (Join-Path $out 'Telegram.sln'))) {
+        throw 'Configuration returned success but the Visual Studio solution was not generated'
+    }
     Run-Step 'compile' { cmake --build $out --config Release --target Telegram --parallel 4 }
     $release = Join-Path $out 'Release'
     $stage = Join-Path $root 'package/Veyra'
@@ -72,6 +93,8 @@ try {
         $source = Join-Path $release $name
         if (Test-Path $source) { Copy-Item $source $stage -Recurse -Force }
     }
+    $exe = Join-Path $stage 'Veyra.exe'
+    if ((Get-Item $exe).Length -lt 1048576) { throw 'Veyra.exe is unexpectedly small; refusing to package' }
     Copy-Item (Join-Path $repo 'LICENSE') (Join-Path $stage 'LICENSE.txt')
     Copy-Item (Join-Path $repo 'LEGAL') (Join-Path $stage 'LEGAL.txt')
     Copy-Item (Join-Path $repo 'NOTICE-VEYRA.md') (Join-Path $stage 'NOTICE-VEYRA.md')
@@ -86,6 +109,8 @@ try {
             (Join-Path $repo 'scripts/windows/installer.iss')
     }
     Compress-Archive -Path "$stage/*" -DestinationPath (Join-Path $artifacts 'Veyra-windows-x64-portable.zip') -Force
+    $installers = @(Get-ChildItem $artifacts -Filter '*-setup.exe' -File)
+    if ($installers.Count -ne 1) { throw 'Exactly one Windows installer must be produced' }
     Get-ChildItem $artifacts -File | ForEach-Object {
         $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
         "$hash  $($_.Name)"
